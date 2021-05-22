@@ -13,7 +13,6 @@ import java.util.List;
 @ToString
 public class CenterModel {
 
-    private String center_id;
     private String name;
     private String address;
     private String state_name;
