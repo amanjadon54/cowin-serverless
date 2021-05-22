@@ -62,9 +62,13 @@ public class CowinController {
         ResponseEntity<CowinResponse> response = null;
 
         try {
+
+            log.info("Headers passsed" + entity.getHeaders().toString());
             response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, CowinResponse.class);
         } catch (Exception e) {
-            log.error("Exception occurred in retrieval from cowin" + e);
+            log.error("Exception occurred in retrieval from cowin" + e.getMessage());
+            log.error("exception: " + e.getCause());
+            e.getStackTrace();
         }
 
         if (response == null)
