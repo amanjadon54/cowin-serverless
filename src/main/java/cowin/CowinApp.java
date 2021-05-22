@@ -8,7 +8,7 @@ import java.util.Map;
 
 public final class CowinApp {
 
-    public static String handleRequest(Map<String, String> input, Context context) throws Exception {
+    public static Object handleRequest(Map<String, String> input, Context context) throws Exception {
 
         context.getLogger().log("age passed:" + input.get("age"));
         context.getLogger().log("user-agent passed:" + input.get("user-agent"));
@@ -28,7 +28,7 @@ public final class CowinApp {
 
         CowinController cowin = new CowinController();
         List<CenterModel> cowinFilteredData = cowin.getAllAvailableSlots(age, date, stateCode, userAgent);
-        return cowinFilteredData.toString();
+        return cowinFilteredData;
     }
 
     public static void main(String... s) throws Exception {

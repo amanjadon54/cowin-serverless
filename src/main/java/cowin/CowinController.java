@@ -134,7 +134,6 @@ public class CowinController {
         jacksonMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
         jacksonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         jacksonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        jacksonMapper.writerWithDefaultPrettyPrinter();
         return Arrays.asList(new MappingJackson2HttpMessageConverter(jacksonMapper));
     }
 
