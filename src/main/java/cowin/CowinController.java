@@ -38,11 +38,29 @@ public class CowinController {
         delhi.add(144); //SouthEast
         delhi.add(150); //SouthWest
         delhi.add(142); //West
+
+        Set<Integer> chandigarh = new HashSet<>();
+        chandigarh.add(108);
+
+        Set<Integer> up = new HashSet<>();
+        up.add(651); //ghaziabad
+
+        Set<Integer> mp = new HashSet<>();
+        up.add(313); //gwalior
+
+        Set<Integer> telangana = new HashSet<>();
+        up.add(581); //hyderabad
+
         stateDistricts.put("DEL", delhi);
+        stateDistricts.put("CHD", chandigarh);
+        stateDistricts.put("UP", up);
+        stateDistricts.put("MP", mp);
+        stateDistricts.put("TEL", telangana);
 
     }
 
     public List<CenterModel> getAllAvailableSlots(int ageLimit, String startDate, String stateCode, String userAgent) {
+
         Set<Integer> allDistricts = getAllDistricts(stateCode);
         if (allDistricts.isEmpty())
             return new LinkedList<>();
@@ -60,9 +78,10 @@ public class CowinController {
 
         HttpEntity<String> entity = new HttpEntity("", createHttpHeaders(userAgent));
         ResponseEntity<CowinResponse> response = null;
+        String googleUrl = "https://jsonplaceholder.typicode.com/todos/1";
+        UriComponentsBuilder googleBuilder = UriComponentsBuilder.fromHttpUrl(googleUrl);
 
         try {
-
             log.info("Headers passsed" + entity.getHeaders().toString());
             response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, CowinResponse.class);
         } catch (Exception e) {
@@ -102,6 +121,7 @@ public class CowinController {
     private HttpHeaders createHttpHeaders(String userAgent) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("user-agent", userAgent);
+        headers.set("Host", "cdn-api.co-vin.in");
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN));
         return headers;
     }
