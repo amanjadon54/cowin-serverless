@@ -1,5 +1,9 @@
 package cowin;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import cowin.model.CenterModel;
 import cowin.model.SessionModel;
 import cowin.response.CowinResponse;
@@ -10,6 +14,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -78,16 +84,13 @@ public class CowinController {
 
         HttpEntity<String> entity = new HttpEntity("", createHttpHeaders(userAgent));
         ResponseEntity<CowinResponse> response = null;
-        String googleUrl = "https://jsonplaceholder.typicode.com/todos/1";
-        UriComponentsBuilder googleBuilder = UriComponentsBuilder.fromHttpUrl(googleUrl);
-
+        restTemplate.setMessageConverters(getMessageConverters());
         try {
             log.info("Headers passsed" + entity.getHeaders().toString());
             response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, CowinResponse.class);
         } catch (Exception e) {
             log.error("Exception occurred in retrieval from cowin" + e.getMessage());
             log.error("exception: " + e.getCause());
-            e.getStackTrace();
         }
 
         if (response == null)
@@ -124,6 +127,15 @@ public class CowinController {
         headers.set("Host", "cdn-api.co-vin.in");
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN));
         return headers;
+    }
+
+    private List<HttpMessageConverter<?>> getMessageConverters() {
+        ObjectMapper jacksonMapper = new ObjectMapper();
+        jacksonMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        jacksonMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        jacksonMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        jacksonMapper.writerWithDefaultPrettyPrinter();
+        return Arrays.asList(new MappingJackson2HttpMessageConverter(jacksonMapper));
     }
 
 }
