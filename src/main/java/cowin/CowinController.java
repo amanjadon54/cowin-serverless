@@ -13,22 +13,40 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CowinController {
 
     private RestTemplate restTemplate = new RestTemplate();
+    private HashMap<String, Set<Integer>> stateDistricts;
 
     private Logger log = LoggerFactory.getLogger(CowinController.class);
 
-    public List<CenterModel> getAllAvailableSlots(int ageLimit, String userAgent) {
-        String startDate = "11-05-2021";
-        Set<Integer> allDistricts = getAllDistricts();
+
+    public CowinController() {
+        stateDistricts = new HashMap<>();
+        Set<Integer> delhi = new HashSet<>();
+        delhi.add(141);  //central delhi
+        delhi.add(145); //East
+        delhi.add(140); //New delhi
+        delhi.add(146); //North delhi
+        delhi.add(147); //NorthEast
+        delhi.add(143); //NorthWest
+        delhi.add(148); //shahdara
+        delhi.add(149); //South
+        delhi.add(144); //SouthEast
+        delhi.add(150); //SouthWest
+        delhi.add(142); //West
+        stateDistricts.put("DEL", delhi);
+
+    }
+
+    public List<CenterModel> getAllAvailableSlots(int ageLimit, String startDate, String stateCode, String userAgent) {
+        Set<Integer> allDistricts = getAllDistricts(stateCode);
+        if (allDistricts.isEmpty())
+            return new LinkedList<>();
+
         List<CenterModel> allSlots = new LinkedList<>();
         for (Integer district : allDistricts) {
             allSlots.addAll(getCentersByDistrictAndStartDate(district, startDate, ageLimit, userAgent));
@@ -46,7 +64,7 @@ public class CowinController {
         try {
             response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, CowinResponse.class);
         } catch (Exception e) {
-            log.error("exception occured in retrival from cowin" + e);
+            log.error("Exception occurred in retrieval from cowin" + e);
         }
 
         if (response == null)
@@ -71,25 +89,15 @@ public class CowinController {
 
     }
 
-    private Set<Integer> getAllDistricts() {
-        Set<Integer> districts = new HashSet<>();
-        districts.add(141);  //central delhi
-        districts.add(145); //East
-        districts.add(140); //New delhi
-        districts.add(146); //North delhi
-        districts.add(147); //NorthEast
-        districts.add(143); //NorthWest
-        districts.add(148); //shahdara
-        districts.add(149); //South
-        districts.add(144); //SouthEast
-        districts.add(150); //SouthWest
-        districts.add(142); //West
-        return districts;
+    private Set<Integer> getAllDistricts(String state) {
+        if (stateDistricts.containsKey(state.toUpperCase()))
+            return stateDistricts.get(state.toUpperCase());
+        return new HashSet<>();
     }
 
     private HttpHeaders createHttpHeaders(String userAgent) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36");
+        headers.add("user-agent", userAgent);
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN));
         return headers;
     }
